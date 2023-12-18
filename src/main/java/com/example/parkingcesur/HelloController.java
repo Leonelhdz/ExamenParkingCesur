@@ -1,18 +1,18 @@
 package com.example.parkingcesur;
 
-import javafx.beans.property.SimpleSetProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.util.StringConverter;
 import models.Cliente;
 import models.Coche;
-
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Date;
 
 public class HelloController
 {
@@ -46,15 +46,30 @@ public class HelloController
     private TableColumn<Coche, String> cTarifa;
     @javafx.fxml.FXML
     private TableColumn<Coche, String> cCoste;
-
-
+    @javafx.fxml.FXML
+    private RadioButton radioStandar;
+    @javafx.fxml.FXML
+    private RadioButton radioOferta;
+    @javafx.fxml.FXML
+    private RadioButton radioLargaDuracion;
+    @javafx.fxml.FXML
+    private ToggleGroup tipoTarifa;
+    @javafx.fxml.FXML
+    private Label labelInfo;
     private ObservableList<Cliente> clientes = FXCollections.observableArrayList();
     private ObservableList<Coche> coches = FXCollections.observableArrayList();
+
+    //las variables con los precios
+    double precioStandar = 8.0;
+    double precioOferta = 6.0;
+    double precioLargaDuracion = 2.0;
+    @javafx.fxml.FXML
+    private Label labelCoste;
 
 
     @javafx.fxml.FXML
     public void initialize() {
-        //TODO LISTA DE CLIENTES
+        // LISTA DE CLIENTES
         if(Session.getClientes().isEmpty()){
             ArrayList<Cliente> client = new ArrayList<>();
             client.add(new Cliente(1, "Carlos", "carlos@cesur.com"));
@@ -80,21 +95,21 @@ public class HelloController
         });
         comboCliente.setItems(clientes);
 
-        //TODO AGREGAMOS DATOS A EL COMBO MODELO
+        // AGREGAMOS DATOS A EL COMBO MODELO
         ObservableList<String> datosModelo = FXCollections.observableArrayList();
         datosModelo.addAll("Toyota Camry", "Ford Mustang", "Honda Civic", "Chevrolet Corvette", "BMW 3 Series",
                 "Mercedes-Benz S-Class", "Nissan Altima", "Audi Q5", "Volkswagen Golf", "Tesla Model S");
         comboModelo.setItems(datosModelo);
         comboModelo.getSelectionModel().selectFirst();
 
-        //TODO DATOS A LA TABLA
+        // DATOS A LA TABLA
         if (Session.getCoches().isEmpty()){
             ArrayList<Coche> coche = new ArrayList<>();
-            coche.add(new Coche("sjshshhs", "fddfd", LocalDate.of(2023,2,15), LocalDate.of(2023,2,16), "Carlos", 8.0, 5.0));
-            coche.add(new Coche("sjshshhs", "fddfd", LocalDate.of(2023,2,14), LocalDate.of(2023,2,15), "Carmen", 6.0, 5.0));
-            coche.add(new Coche("sjshshhs", "fddfd", LocalDate.of(2023,2,13), LocalDate.of(2023,2,14), "Pedro", 2.0, 5.0));
-            coche.add(new Coche("sjshshhs", "fddfd", LocalDate.of(2023,2,12), LocalDate.of(2023,2,13), "Paco", 8.0, 5.0));
-            coche.add(new Coche("sjshshhs", "fddfd", LocalDate.of(2023,2,11), LocalDate.of(2023,2,12), "Raul", 2.0, 5.0));
+            coche.add(new Coche("ABC123", "Toyota Camry", LocalDate.of(2023, 2, 15), LocalDate.of(2023, 2, 16), "Carlos", 8.0, 5.0));
+            coche.add(new Coche("DEF456", "Ford Mustang", LocalDate.of(2023, 2, 14), LocalDate.of(2023, 2, 15), "Carmen", 6.0, 5.0));
+            coche.add(new Coche("GHI789", "Honda Civic", LocalDate.of(2023, 2, 13), LocalDate.of(2023, 2, 14), "Pedro", 2.0, 5.0));
+            coche.add(new Coche("JKL012", "Chevrolet Corvette", LocalDate.of(2023, 2, 12), LocalDate.of(2023, 2, 13), "Paco", 8.0, 5.0));
+            coche.add(new Coche("MNO345", "BMW 3 Series", LocalDate.of(2023, 2, 11), LocalDate.of(2023, 2, 12), "Raul", 2.0, 5.0));
             Session.setCoches(coche);
         }
 
@@ -117,7 +132,7 @@ public class HelloController
                 new SimpleStringProperty(fila.getValue().getFechaSalida().toString()));
 
         cCliente.setCellValueFactory((fila)-> {
-            String cliente = fila.getValue().getModelo();
+            String cliente = fila.getValue().getCliente();
             return new SimpleStringProperty(cliente);
         });
 
@@ -130,29 +145,84 @@ public class HelloController
         tableParking.getSelectionModel().selectedItemProperty();
         tableParking.setItems(coches);
 
+        // AGRUPAR LOS RADIOBUTTON
+        tipoTarifa = new ToggleGroup();
+        radioStandar.setToggleGroup(tipoTarifa);
+        radioOferta.setToggleGroup(tipoTarifa);
+        radioLargaDuracion.setToggleGroup(tipoTarifa);
+
+
     }
 
     @javafx.fxml.FXML
     public void añadir(ActionEvent actionEvent) {
-        // Obtener datos de los controles de la interfaz de usuario
+
         String matricula = txtMatricula.getText();
-        String modelo = comboModelo.getValue().toString();
+        Cliente cliente = (Cliente) comboCliente.getValue();
         LocalDate fechaEntrada = dateEntrada.getValue();
         LocalDate fechaSalida = dateSalida.getValue();
-        Cliente cliente = (Cliente) comboCliente.getValue();
-        double tarifa = /* lógica para obtener la tarifa */;
-        double coste = /* lógica para obtener el coste */;
+        String modelo = (String) comboModelo.getValue();
 
-        // Crear un nuevo Coche
-        Coche nuevoCoche = new Coche(matricula, modelo, fechaEntrada, fechaSalida, cliente.getNombre(), tarifa, coste);
+        if(txtMatricula.getText().isEmpty() || comboCliente.getValue() == null ||
+        dateEntrada.getValue() == null || dateSalida.getValue() == null ||
+        comboModelo.getValue() == null || tipoTarifa.getSelectedToggle() == null){
 
-        // Agregar el nuevo coche a la lista
-        coches.add(nuevoCoche);
+            // Mostrar un Alert indicando que algunos campos están vacíos
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText(null);
+            alert.setContentText("Por favor, complete todos los campos antes de añadir un coche.");
+            alert.showAndWait();
+            return;
+        }
+
+        //obtener la tarifa seleccionada
+        RadioButton radioseleccionado = (RadioButton) tipoTarifa.getSelectedToggle();
+        double tarifa = 0.0;
+
+        //calcular el coste según los dias y tarifa seleccionada
+        if(radioseleccionado != null) {
+            if(radioseleccionado.equals(radioStandar)){
+                tarifa = precioStandar;
+            } else if (radioseleccionado.equals(radioOferta)) {
+                tarifa = precioOferta;
+            } else if (radioseleccionado.equals(radioLargaDuracion)){
+                tarifa = precioLargaDuracion;
+            }
+
+            int dias = (int) fechaEntrada.until(fechaSalida, ChronoUnit.DAYS);
+            double costo = tarifa * dias;
+
+            Coche nuevoCoche = new Coche(matricula, modelo, fechaEntrada, fechaSalida, cliente.getNombre(), tarifa, costo);
+            coches.add(nuevoCoche);
+            Session.getCoches().add(nuevoCoche);
+
+            tableParking.setItems(coches);
+            labelCoste.setText("Total: " + costo + " €");
+            limpiar();
+        }
     }
 
+    private void limpiar() {
+        txtMatricula.clear();
+        comboCliente.getSelectionModel().clearSelection();
+        dateEntrada.setValue(null);
+        dateSalida.setValue(null);
+        comboModelo.getSelectionModel().selectFirst();
+        tipoTarifa.selectToggle(null);
+    }
 
     @javafx.fxml.FXML
     public void salir(ActionEvent actionEvent) {
         System.exit(0);
+    }
+
+    @javafx.fxml.FXML
+    public void info(Event event) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Información");
+        alert.setHeaderText("Realizado por: ");
+        alert.setContentText("Francisco Leonel Soriano Hernandez\n 2º DAM");
+        alert.showAndWait();
     }
 }

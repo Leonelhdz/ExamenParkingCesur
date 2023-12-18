@@ -11,6 +11,7 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
@@ -21,10 +22,9 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-
 <BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.parkingcesur.HelloController">
    <center>
-      <BorderPane prefHeight="515.0" prefWidth="656.0">
+      <BorderPane prefHeight="515.0" prefWidth="656.0" style="-fx-background-color: #c2c2c2;">
          <center>
             <SplitPane dividerPositions="0.5" prefHeight="200.0" prefWidth="442.0" style="-fx-background-color: #002858;" BorderPane.alignment="CENTER">
                <items>
@@ -65,12 +65,15 @@
                               <Label text="Coste" textFill="WHITE" GridPane.rowIndex="9" />
                               <TextField fx:id="txtMatricula" promptText="matrícula" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                               <ChoiceBox fx:id="comboCliente" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                              <RadioButton mnemonicParsing="false" text="Standar" textFill="WHITE" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                              <RadioButton mnemonicParsing="false" text="Oferta" textFill="WHITE" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-                              <RadioButton mnemonicParsing="false" text="Larga duración" textFill="WHITE" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                              <RadioButton fx:id="radioStandar" mnemonicParsing="false" text="Standar" textFill="WHITE" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                                 <toggleGroup>
+                                    <ToggleGroup fx:id="tipoTarifa" />
+                                 </toggleGroup></RadioButton>
+                              <RadioButton fx:id="radioOferta" mnemonicParsing="false" text="Oferta" textFill="WHITE" toggleGroup="$tipoTarifa" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                              <RadioButton fx:id="radioLargaDuracion" mnemonicParsing="false" text="Larga duración" textFill="WHITE" toggleGroup="$tipoTarifa" GridPane.columnIndex="1" GridPane.rowIndex="6" />
                               <DatePicker fx:id="dateEntrada" GridPane.columnIndex="1" GridPane.rowIndex="7" />
                               <DatePicker fx:id="dateSalida" GridPane.columnIndex="1" GridPane.rowIndex="8" />
-                              <Label text="XXX€" textFill="WHITE" GridPane.columnIndex="1" GridPane.rowIndex="9" />
+                              <Label fx:id="labelCoste" textFill="WHITE" GridPane.columnIndex="1" GridPane.rowIndex="9" />
                               <ComboBox fx:id="comboModelo" editable="true" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                            </children>
                         </GridPane>
@@ -104,7 +107,7 @@
       </BorderPane>
    </center>
    <top>
-      <FlowPane alignment="CENTER" BorderPane.alignment="CENTER">
+      <FlowPane alignment="CENTER" style="-fx-background-color: #c2c2c2;" BorderPane.alignment="CENTER">
          <children>
             <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
                <image>
@@ -126,7 +129,7 @@
       </FlowPane>
    </top>
    <bottom>
-      <Label text="Aplicación creada por Francisco Leonel Soriano Hernandez 2º DAM" BorderPane.alignment="CENTER">
+      <Label fx:id="labelInfo" onMouseClicked="#info" style="-fx-text-fill: #002858;" text="Aplicación creada por Francisco Leonel Soriano Hernandez 2º DAM" BorderPane.alignment="CENTER">
          <padding>
             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
          </padding>
